@@ -9,6 +9,6 @@ git clone https://github.com/chuanqiangTsang/Msgboard.git
 
 cd Msgboard
 
-npm instal
+npm install
 
 npm run start
