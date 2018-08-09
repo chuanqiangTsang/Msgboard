@@ -1,0 +1,56 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+li{
+  list-style: none
+}
+
+.login-box{
+  width: 500px;
+  margin: 120px auto;
+}
+
+.login-box input {
+  width: 150px;
+  border: 1px solid #00B7FF;
+  outline: none;
+  height: 35px;
+  line-height: 35px;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.tab > ul > li{
+  display: inline-block;
+  cursor: pointer;
+  margin-right: 50px;
+}
+
+.tab > ul > li:hover, .tab > ul > li.cur{
+  color: red;
+}
+
+.item:not(:first-of-type){
+  display: none;
+}
+
+.item li{
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid black;
+}
+
+.pager{
+  text-align: center
+}
+
+.pager li{
+  display: inline-block;
+  cursor: pointer;
+}

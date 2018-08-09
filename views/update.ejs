@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="updateApp">
+        <h2>消息详情</h2>
+        <span>{{ info.addTime }}</span>
+        <br />
+        <br />
+
+        <div class="content">
+                昵称： <input type="text" id="nickname" :value="info.nickname"> <br /><br />
+                标题： <input type="text" id="title" :value="info.title"> <br /><br />
+                内容： <textarea name="" id="content" cols="30" rows="10">{{ info.content }}</textarea> <br /><br />
+        
+                <button id="updMsg" @click="update">确认修改</button>
+                <button onClick="window.history.back(-1)">返回列表</button>
+        </div>
+    </div>
+
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/vue.min.js"></script>
+    <script>
+        var vm =  new Vue({
+            el: '#updateApp',
+            data: function(){
+                return {
+                    info: {}
+                }
+            },
+            mounted: function(){
+                this.getMsg();
+            },
+
+            methods: {
+                getMsg: function(){
+                    var _this = this;
+                    $.ajax({
+                        url: '/doGetMsgById',
+                        type: 'GET',
+                        data: {msgId: window.location.href.split('=')[1]}
+                    }).done(function(res){
+                        if(res.state){
+                            _this.info = res.data
+                        }
+                    })
+                },
+
+                update: function(){
+                    var ajaxData = {
+                        msgId: window.location.href.split('=')[1],
+                        nickname: $('#nickname').val().trim(),
+                        title: $('#title').val().trim(),
+                        content: $('#content').val().trim(),
+                    }
+                    $.ajax({
+                        url: '/doUpdateMsg',
+                        type: 'GET',
+                        data: ajaxData
+                    }).done(function(res){
+                        if(res.state){
+                            alert(res.data);
+                            window.location.href = '/';
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+</html>

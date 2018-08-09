@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>首页</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>简易留言板</h1>
+    <h2>欢迎，<%= username %></h2>
+    <p></p>
+    <a href="/dologout">退出</a>
+
+    <hr />
+
+    <div class="tab">
+      <ul>
+        <li class="tab-li cur">留言列表</li>
+        <li class="tab-li">我要留言</li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <div class="item" id="lists">
+        <ul>
+          <li v-for="(item, index) in list" :key="index">
+            <p>昵称：{{ item.nickname }}</p>
+            <p>标题：{{ item.title }}</p>
+            <p>内容：{{ item.content }}</p>
+            <p>添加时间：{{ item.addTime }}</p>
+            <div>
+              <a href="javascript:;" @click="update(item._id)">修改</a>
+              <a href="javascript:;" @click="del(item._id)">删除</a></div>
+          </li>
+        </ul>
+        <div v-if="list.length == 0" style="color: red; text-align: center">暂无数据</div>
+        <div class="pager" v-if="list.length != 0">
+          <ul>
+            <li @click="getLists(1)">首页</li>
+            <li @click="prev">上一页</li>
+            <li>共{{ totalpages }}条， 当前第{{ pageIndex}}页</li>
+            <li @click="next">下一页</li>
+            <li @click="endPage">尾页</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="item">
+        昵称： <input type="text" id="nickname"> <br /><br />
+        标题： <input type="text" id="title"> <br /><br />
+        内容： <textarea name="" id="content" cols="30" rows="10"></textarea> <br /><br />
+
+        <button id="lvMsg">留言</button>
+      </div>
+    </div>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/vue.min.js"></script>
+    <script>
+      $(function(){
+        $('.tab-li').click(function(){
+          var _index = $('.tab-li').index(this);
+          $(this).addClass('cur').siblings('li').removeClass('cur');
+          $('.item').eq(_index).show().siblings('.item').hide();
+        });
+        
+        $('#lvMsg').click(function(){
+          $.ajax({
+            url: "/doAddMsg",
+            type: "GET",
+            data: {nickname: $('#nickname').val().trim(), title: $('#title').val().trim(), content: $('#content').val().trim()}
+          }).done(function(res){
+            if(res.state){
+              alert('留言成功');
+              window.location.reload();
+            }else{
+              alert('留言失败')
+            }
+          })
+        })
+
+      })
+
+      new Vue({
+        el: '#lists',
+        data: function(){
+          return {
+            list: [],
+            pageSize: 2,
+            pageIndex: 1,
+            totalpages: 0
+          }
+        },
+        mounted: function(){
+          this.getLists(1);
+        },
+        methods: {
+          getLists: function(pageIndex){
+            var _this = this;
+            $.ajax({
+              url: '/doGetMsg',
+              type: 'GET',
+              data: {pageIndex: pageIndex, pageSize: _this.pageSize}
+            }).done(function(res){
+              //console.log(res);
+              if(res.state){
+                _this.list = res.data;
+                _this.pageIndex = res.pageIndex;
+                _this.totalpages = res.totalCount;
+              }
+            })
+          },
+
+          prev: function(){
+            var _pindex = this.pageIndex -= 1;
+            if(_pindex <= 0){
+              this.pageIndex = 1;
+              return false;
+            }
+            this.getLists(_pindex)
+          },
+
+          next: function(){
+            var _pindex = this.pageIndex += 1;
+            var _maxindex = Math.ceil(this.totalpages / this.pageSize);
+            if(_pindex>_maxindex){
+              this.pageIndex = _maxindex;
+              return false;
+            }
+            this.getLists(_pindex)
+          },
+
+          endPage: function(){
+            var _pindex = Math.ceil(this.totalpages / this.pageSize);
+            this.getLists(_pindex);
+          },
+
+          update: function(id){
+            window.location.href = '/update?msgId=' + id
+          },
+
+          del: function(id){
+
+            var f = confirm('真的要删除吗？');
+            if(f){
+              $.ajax({
+                url: '/doDelMsg',
+                type: 'GET',
+                data: {msgId: id}
+              }).done(function(res){
+                if(res.state){
+                  alert(res.data);
+                  window.location.reload();
+                }
+              })
+            }else{
+              console.log('不是')
+            }
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
